@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦋 BUG博物馆 | 云服务问题标本收藏馆</title>
+    <meta name="description" content="收集、展示和研究云服务中的各种BUG标本">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦋</text></svg>">
+</head>
+<body>
+    <!-- 博物馆入口 -->
+    <header class="museum-header">
+        <div class="museum-banner">
+            <div class="banner-decoration">
+                <span class="deco-bug">🐛</span>
+                <span class="deco-bug">🦗</span>
+                <span class="deco-bug">🐞</span>
+                <span class="deco-bug">🦋</span>
+                <span class="deco-bug">🕷️</span>
+            </div>
+            <div class="museum-title">
+                <h1>
+                    <span class="title-icon">🦋</span>
+                    <span class="title-text">BUG博物馆</span>
+                </h1>
+                <p class="museum-subtitle">云服务问题标本收藏馆</p>
+                <div class="museum-info">
+                    <span class="info-item">📍 虚拟展馆</span>
+                    <span class="info-item">🕐 全天开放</span>
+                    <span class="info-item">🎫 免费参观</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 导览栏 -->
+        <nav class="museum-nav">
+            <div class="nav-container">
+                <a href="#exhibition" class="nav-item active">
+                    <span class="nav-icon">🏛️</span>
+                    <span>展览大厅</span>
+                </a>
+                <a href="#collection" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>我的收藏</span>
+                </a>
+                <a href="#catalog" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>标本目录</span>
+                </a>
+                <a href="#about" class="nav-item">
+                    <span class="nav-icon">ℹ️</span>
+                    <span>关于</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 欢迎区 -->
+    <section class="welcome-section">
+        <div class="container">
+            <div class="welcome-card">
+                <div class="curator-avatar">🧑‍🔬</div>
+                <div class="curator-message">
+                    <h2>馆长致辞</h2>
+                    <p>欢迎来到BUG博物馆！这里收藏着来自云服务世界的各种珍稀BUG标本。每一个BUG都是独特的，它们记录着开发者与云服务相遇的故事。</p>
+                    <p>您可以在这里记录您发现的BUG标本，查看其他收藏家的发现，共同研究这些有趣的"生物"。</p>
+                </div>
+            </div>
+            
+            <!-- 统计展板 -->
+            <div class="stats-board">
+                <div class="stat-display">
+                    <div class="stat-icon">🦋</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalSpecimens">0</div>
+                        <div class="stat-label">标本总数</div>
+                    </div>
+                </div>
+                <div class="stat-display">
+                    <div class="stat-icon">🔴</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="rareSpecimens">0</div>
+                        <div class="stat-label">稀有标本</div>
+                    </div>
+                </div>
+                <div class="stat-display">
+                    <div class="stat-icon">💡</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="solvedSpecimens">0</div>
+                        <div class="stat-label">已研究</div>
+                    </div>
+                </div>
+                <div class="stat-display">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="categoriesCount">10</div>
+                        <div class="stat-label">分类数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 标本分类目录 -->
+    <section class="catalog-section" id="catalog">
+        <div class="container">
+            <h2>
+                <span class="section-icon">📚</span>
+                标本分类目录
+            </h2>
+            <div class="catalog-grid">
+                <div>
+                    <div class="catalog-card" data-category="ECS">
+                        <div class="catalog-icon">🖥️</div>
+                        <h3>云服务器 ECS</h3>
+                        <p>计算实例相关标本</p>
+                        <div class="catalog-count" data-category="ECS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="ACK">
+                        <div class="catalog-icon">🐳</div>
+                        <h3>容器服务 ACK</h3>
+                        <p>Kubernetes相关标本</p>
+                        <div class="catalog-count" data-category="ACK">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="ACR">
+                        <div class="catalog-icon">📦</div>
+                        <h3>容器镜像 ACR</h3>
+                        <p>镜像仓库相关标本</p>
+                        <div class="catalog-count" data-category="ACR">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="FC">
+                        <div class="catalog-icon">⚡</div>
+                        <h3>函数计算 FC</h3>
+                        <p>Serverless相关标本</p>
+                        <div class="catalog-count" data-category="FC">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="OSS">
+                        <div class="catalog-icon">💾</div>
+                        <h3>对象存储 OSS</h3>
+                        <p>存储服务相关标本</p>
+                        <div class="catalog-count" data-category="OSS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="NAS">
+                        <div class="catalog-icon">📁</div>
+                        <h3>文件存储 NAS</h3>
+                        <p>共享文件系统标本</p>
+                        <div class="catalog-count" data-category="NAS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="RDS">
+                        <div class="catalog-icon">🗄️</div>
+                        <h3>云数据库 RDS</h3>
+                        <p>关系型数据库标本</p>
+                        <div class="catalog-count" data-category="RDS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="Redis">
+                        <div class="catalog-icon">🔴</div>
+                        <h3>云数据库 Redis</h3>
+                        <p>缓存数据库标本</p>
+                        <div class="catalog-count" data-category="Redis">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="MongoDB">
+                        <div class="catalog-icon">🍃</div>
+                        <h3>云数据库 MongoDB</h3>
+                        <p>文档数据库标本</p>
+                        <div class="catalog-count" data-category="MongoDB">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="SLB">
+                        <div class="catalog-icon">⚖️</div>
+                        <h3>负载均衡 SLB</h3>
+                        <p>流量分发相关标本</p>
+                        <div class="catalog-count" data-category="SLB">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="CDN">
+                        <div class="catalog-icon">🌐</div>
+                        <h3>CDN</h3>
+                        <p>内容分发相关标本</p>
+                        <div class="catalog-count" data-category="CDN">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="VPC">
+                        <div class="catalog-icon">🔗</div>
+                        <h3>专有网络 VPC</h3>
+                        <p>网络服务相关标本</p>
+                        <div class="catalog-count" data-category="VPC">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="MSE">
+                        <div class="catalog-icon">🔧</div>
+                        <h3>微服务引擎 MSE</h3>
+                        <p>微服务治理标本</p>
+                        <div class="catalog-count" data-category="MSE">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="MQ">
+                        <div class="catalog-icon">📨</div>
+                        <h3>消息队列 MQ</h3>
+                        <p>消息中间件标本</p>
+                        <div class="catalog-count" data-category="MQ">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="EDAS">
+                        <div class="catalog-icon">🏢</div>
+                        <h3>企业级分布式应用 EDAS</h3>
+                        <p>应用托管标本</p>
+                        <div class="catalog-count" data-category="EDAS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="RAM">
+                        <div class="catalog-icon">🔐</div>
+                        <h3>访问控制 RAM</h3>
+                        <p>权限管理相关标本</p>
+                        <div class="catalog-count" data-category="RAM">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="WAF">
+                        <div class="catalog-icon">🛡️</div>
+                        <h3>Web应用防火墙 WAF</h3>
+                        <p>安全防护相关标本</p>
+                        <div class="catalog-count" data-category="WAF">0 个标本</div>
+                    </div>
+                    <!-- 复制一份用于无缝循环 -->
+                    <div class="catalog-card" data-category="ECS">
+                        <div class="catalog-icon">🖥️</div>
+                        <h3>云服务器 ECS</h3>
+                        <p>计算实例相关标本</p>
+                        <div class="catalog-count" data-category="ECS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="ACK">
+                        <div class="catalog-icon">🐳</div>
+                        <h3>容器服务 ACK</h3>
+                        <p>Kubernetes相关标本</p>
+                        <div class="catalog-count" data-category="ACK">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="ACR">
+                        <div class="catalog-icon">📦</div>
+                        <h3>容器镜像 ACR</h3>
+                        <p>镜像仓库相关标本</p>
+                        <div class="catalog-count" data-category="ACR">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="FC">
+                        <div class="catalog-icon">⚡</div>
+                        <h3>函数计算 FC</h3>
+                        <p>Serverless相关标本</p>
+                        <div class="catalog-count" data-category="FC">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="OSS">
+                        <div class="catalog-icon">💾</div>
+                        <h3>对象存储 OSS</h3>
+                        <p>存储服务相关标本</p>
+                        <div class="catalog-count" data-category="OSS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="NAS">
+                        <div class="catalog-icon">📁</div>
+                        <h3>文件存储 NAS</h3>
+                        <p>共享文件系统标本</p>
+                        <div class="catalog-count" data-category="NAS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="RDS">
+                        <div class="catalog-icon">🗄️</div>
+                        <h3>云数据库 RDS</h3>
+                        <p>关系型数据库标本</p>
+                        <div class="catalog-count" data-category="RDS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="Redis">
+                        <div class="catalog-icon">🔴</div>
+                        <h3>云数据库 Redis</h3>
+                        <p>缓存数据库标本</p>
+                        <div class="catalog-count" data-category="Redis">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="MongoDB">
+                        <div class="catalog-icon">🍃</div>
+                        <h3>云数据库 MongoDB</h3>
+                        <p>文档数据库标本</p>
+                        <div class="catalog-count" data-category="MongoDB">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="SLB">
+                        <div class="catalog-icon">⚖️</div>
+                        <h3>负载均衡 SLB</h3>
+                        <p>流量分发相关标本</p>
+                        <div class="catalog-count" data-category="SLB">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="CDN">
+                        <div class="catalog-icon">🌐</div>
+                        <h3>CDN</h3>
+                        <p>内容分发相关标本</p>
+                        <div class="catalog-count" data-category="CDN">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="VPC">
+                        <div class="catalog-icon">🔗</div>
+                        <h3>专有网络 VPC</h3>
+                        <p>网络服务相关标本</p>
+                        <div class="catalog-count" data-category="VPC">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="MSE">
+                        <div class="catalog-icon">🔧</div>
+                        <h3>微服务引擎 MSE</h3>
+                        <p>微服务治理标本</p>
+                        <div class="catalog-count" data-category="MSE">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="MQ">
+                        <div class="catalog-icon">📨</div>
+                        <h3>消息队列 MQ</h3>
+                        <p>消息中间件标本</p>
+                        <div class="catalog-count" data-category="MQ">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="EDAS">
+                        <div class="catalog-icon">🏢</div>
+                        <h3>企业级分布式应用 EDAS</h3>
+                        <p>应用托管标本</p>
+                        <div class="catalog-count" data-category="EDAS">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="RAM">
+                        <div class="catalog-icon">🔐</div>
+                        <h3>访问控制 RAM</h3>
+                        <p>权限管理相关标本</p>
+                        <div class="catalog-count" data-category="RAM">0 个标本</div>
+                    </div>
+                    <div class="catalog-card" data-category="WAF">
+                        <div class="catalog-icon">🛡️</div>
+                        <h3>Web应用防火墙 WAF</h3>
+                        <p>安全防护相关标本</p>
+                        <div class="catalog-count" data-category="WAF">0 个标本</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 展览大厅 -->
+    <section class="exhibition-hall" id="exhibition">
+        <div class="container">
+            <div class="section-header">
+                <h2>
+                    <span class="section-icon">🏛️</span>
+                    展览大厅
+                </h2>
+                <button class="btn-primary" id="addSpecimenBtn">
+                    <span class="btn-icon">➕</span>
+                    <span>添加新标本</span>
+                </button>
+            </div>
+
+            <!-- 筛选柜 -->
+            <div class="filter-cabinet" id="filterCabinet">
+                <div class="cabinet-header">
+                    <h3>🔍 标本筛选器</h3>
+                    <button class="toggle-btn" id="toggleFilter">
+                        <span id="filterToggleIcon">▼</span>
+                    </button>
+                </div>
+                <div class="cabinet-content" id="filterContent">
+                    <div class="filter-row">
+                        <div class="filter-item">
+                            <label>🏷️ 分类</label>
+                            <select id="filterCategory">
+                                <option value="">全部分类</option>
+                                <optgroup label="计算服务">
+                                    <option value="ECS">🖥️ 云服务器 ECS</option>
+                                    <option value="ACK">🐳 容器服务 ACK</option>
+                                    <option value="ACR">📦 容器镜像 ACR</option>
+                                    <option value="FC">⚡ 函数计算 FC</option>
+                                </optgroup>
+                                <optgroup label="存储服务">
+                                    <option value="OSS">💾 对象存储 OSS</option>
+                                    <option value="NAS">📁 文件存储 NAS</option>
+                                </optgroup>
+                                <optgroup label="数据库">
+                                    <option value="RDS">🗄️ 云数据库 RDS</option>
+                                    <option value="Redis">🔴 云数据库 Redis</option>
+                                    <option value="MongoDB">🍃 云数据库 MongoDB</option>
+                                </optgroup>
+                                <optgroup label="网络服务">
+                                    <option value="SLB">⚖️ 负载均衡 SLB</option>
+                                    <option value="CDN">🌐 CDN</option>
+                                    <option value="VPC">🔗 专有网络 VPC</option>
+                                </optgroup>
+                                <optgroup label="中间件">
+                                    <option value="MSE">🔧 微服务引擎 MSE</option>
+                                    <option value="MQ">📨 消息队列 MQ</option>
+                                    <option value="EDAS">🏢 企业级分布式应用 EDAS</option>
+                                </optgroup>
+                                <optgroup label="安全与管理">
+                                    <option value="RAM">🔐 访问控制 RAM</option>
+                                    <option value="WAF">🛡️ Web应用防火墙 WAF</option>
+                                </optgroup>
+                                <optgroup label="其他">
+                                    <option value="Console">🎛️ 控制台</option>
+                                    <option value="API">⚙️ API/SDK</option>
+                                    <option value="Other">📦 其他</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label>⭐ 稀有度</label>
+                            <select id="filterRarity">
+                                <option value="">全部稀有度</option>
+                                <option value="critical">🔴 传说级 (严重)</option>
+                                <option value="high">🟠 史诗级 (高)</option>
+                                <option value="medium">🟡 稀有级 (中)</option>
+                                <option value="low">🟢 普通级 (低)</option>
+                            </select>
+                        </div>
+                        <div class="filter-item search-item">
+                            <label>🔎 搜索</label>
+                            <input type="text" id="searchInput" placeholder="搜索标本名称、描述...">
+                        </div>
+                        <button class="btn-reset" id="resetFilters">重置</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标本陈列室 -->
+            <div class="specimen-gallery">
+                <div id="specimenGrid" class="specimen-grid">
+                    <!-- 标本卡片将通过JS动态生成 -->
+                </div>
+                <div id="emptyGallery" class="empty-gallery">
+                    <div class="empty-icon">🦋</div>
+                    <h3>展厅空空如也</h3>
+                    <p>还没有收藏任何BUG标本</p>
+                    <p>点击上方"添加新标本"按钮开始您的收藏之旅</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于博物馆 -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>关于BUG博物馆</h2>
+                    <p>BUG博物馆是一个独特的云服务问题收藏平台。我们将每一个BUG视为珍贵的标本，用收藏和研究的态度来对待它们。</p>
+                    <div class="about-features">
+                        <div class="feature-item">
+                            <span class="feature-emoji">🦋</span>
+                            <div>
+                                <h4>标本收藏</h4>
+                                <p>像收集昆虫标本一样记录每一个BUG</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-emoji">🔬</span>
+                            <div>
+                                <h4>深入研究</h4>
+                                <p>详细记录BUG的特征和解决方案</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-emoji">📖</span>
+                            <div>
+                                <h4>知识分享</h4>
+                                <p>与其他收藏家交流经验</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="specimen-showcase">
+                        <div class="showcase-item">🐛</div>
+                        <div class="showcase-item">🦗</div>
+                        <div class="showcase-item">🐞</div>
+                        <div class="showcase-item">🦋</div>
+                        <div class="showcase-item">🕷️</div>
+                        <div class="showcase-item">🐜</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="museum-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>🦋 BUG博物馆</h3>
+                    <p>收藏 · 研究 · 分享</p>
+                </div>
+                <div class="footer-tools">
+                    <button class="footer-btn" id="exportCollection">
+                        <span>📤</span>
+                        <span>导出收藏</span>
+                    </button>
+                    <button class="footer-btn" id="importCollection">
+                        <span>📥</span>
+                        <span>导入收藏</span>
+                    </button>
+                    <button class="footer-btn danger" id="clearCollection">
+                        <span>🗑️</span>
+                        <span>清空收藏</span>
+                    </button>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>💾 所有标本数据保存在您的浏览器本地 | 🔒 隐私安全</p>
+                <p>© 2024 BUG博物馆 | 开源项目 MIT License</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 添加标本模态框 -->
+    <div class="modal" id="specimenModal">
+        <div class="modal-overlay" onclick="closeSpecimenModal()"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>
+                    <span class="modal-icon">🦋</span>
+                    添加新标本
+                </h3>
+                <button class="modal-close" onclick="closeSpecimenModal()">✕</button>
+            </div>
+            <form id="specimenForm" class="modal-body">
+                <div class="form-section">
+                    <h4>📋 基本信息</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">分类 *</label>
+                            <select id="category" required>
+                                <option value="">选择分类</option>
+                                <optgroup label="计算服务">
+                                    <option value="ECS">🖥️ 云服务器 ECS</option>
+                                    <option value="ACK">🐳 容器服务 ACK</option>
+                                    <option value="ACR">📦 容器镜像 ACR</option>
+                                    <option value="FC">⚡ 函数计算 FC</option>
+                                </optgroup>
+                                <optgroup label="存储服务">
+                                    <option value="OSS">💾 对象存储 OSS</option>
+                                    <option value="NAS">📁 文件存储 NAS</option>
+                                </optgroup>
+                                <optgroup label="数据库">
+                                    <option value="RDS">🗄️ 云数据库 RDS</option>
+                                    <option value="Redis">🔴 云数据库 Redis</option>
+                                    <option value="MongoDB">🍃 云数据库 MongoDB</option>
+                                </optgroup>
+                                <optgroup label="网络服务">
+                                    <option value="SLB">⚖️ 负载均衡 SLB</option>
+                                    <option value="CDN">🌐 CDN</option>
+                                    <option value="VPC">🔗 专有网络 VPC</option>
+                                </optgroup>
+                                <optgroup label="中间件">
+                                    <option value="MSE">🔧 微服务引擎 MSE</option>
+                                    <option value="MQ">📨 消息队列 MQ</option>
+                                    <option value="EDAS">🏢 企业级分布式应用 EDAS</option>
+                                </optgroup>
+                                <optgroup label="安全与管理">
+                                    <option value="RAM">🔐 访问控制 RAM</option>
+                                    <option value="WAF">🛡️ Web应用防火墙 WAF</option>
+                                </optgroup>
+                                <optgroup label="其他">
+                                    <option value="Console">🎛️ 控制台</option>
+                                    <option value="API">⚙️ API/SDK</option>
+                                    <option value="Other">📦 其他</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rarity">稀有度 *</label>
+                            <select id="rarity" required>
+                                <option value="">选择稀有度</option>
+                                <option value="critical">🔴 传说级</option>
+                                <option value="high">🟠 史诗级</option>
+                                <option value="medium">🟡 稀有级</option>
+                                <option value="low">🟢 普通级</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>🏷️ 标本描述</h4>
+                    <div class="form-group">
+                        <label for="name">标本名称 *</label>
+                        <input type="text" id="name" placeholder="给这个BUG起个名字" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">详细描述 *</label>
+                        <textarea id="description" rows="5" placeholder="描述BUG的特征、出现条件、影响范围等..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>🔬 研究笔记</h4>
+                    <div class="form-group">
+                        <label for="solution">解决方案</label>
+                        <textarea id="solution" rows="3" placeholder="记录解决方法或临时规避措施..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="tags">标签</label>
+                        <input type="text" id="tags" placeholder="用逗号分隔，如: 网络,超时,配置错误">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeSpecimenModal()">取消</button>
+                    <button type="submit" class="btn-primary">
+                        <span>📦</span>
+                        <span>收藏标本</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
