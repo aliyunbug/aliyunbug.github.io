@@ -3,600 +3,1625 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🦋 BUG博物馆 | 云服务问题标本收藏馆</title>
-    <meta name="description" content="收集、展示和研究云服务中的各种BUG标本">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦋</text></svg>">
+    <title>阿里云BUG - 云服务问题追踪平台</title>
+    <meta name="description" content="阿里云BUG追踪平台，专业的云服务问题记录与管理系统">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 40'><g fill='%23FF6A00'><path d='M21.4 22.4h21.2v-4.8H21.4z'/><path d='M53.3 0H39.2l3.4 4.8L52.9 8c1.9.6 3.1 2.3 3.1 4.3v15.4c0 2-1.2 3.7-3.1 4.3l-10.3 3.2-3.4 4.8h14.1c6 0 10.7-4.8 10.7-10.7V10.7C64 4.7 59.2 0 53.3 0M10.7 0h14.1l-3.4 4.8L11.1 8A4.5 4.5 0 0 0 8 12.3v15.4c0 2 1.2 3.7 3.1 4.3l10.3 3.2 3.4 4.8H10.7C4.7 40 0 35.2 0 29.3V10.7C0 4.7 4.8 0 10.7 0'/></g></svg>">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #FF6A00;
+    --primary-light: #FF8533;
+    --primary-dark: #E65C00;
+    --secondary-color: #1A1A1A;
+    --severity-critical: #FF3B30;
+    --severity-high: #FF9500;
+    --severity-medium: #FFCC00;
+    --severity-low: #34C759;
+    --text-primary: #1A1A1A;
+    --text-secondary: #666666;
+    --text-light: #999999;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F5F5F5;
+    --bg-tertiary: #FAFAFA;
+    --border-color: #E5E5E5;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-primary: 0 4px 16px rgba(255, 106, 0, 0.2);
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    --spacing-3xl: 64px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+.header {
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-aliyun {
+    height: 28px;
+    width: auto;
+    display: block;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: var(--spacing-xl);
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary-color);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-primary);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 106, 0, 0.3);
+}
+
+.btn-secondary {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-secondary);
+}
+
+.btn-reset {
+    padding: 10px 20px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-reset:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.hero {
+    position: relative;
+    padding: var(--spacing-3xl) 0;
+    background: linear-gradient(135deg, #FFF5F0 0%, #FFFFFF 100%);
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 106, 0, 0.05) 0%, rgba(255, 133, 51, 0.05) 100%);
+    clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 24px;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.hero-description {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.8;
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.btn-hero-primary {
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-primary);
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 106, 0, 0.3);
+}
+
+.btn-hero-secondary {
+    padding: 14px 32px;
+    background: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-hero-secondary:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.hero-stats {
+    display: flex;
+    gap: var(--spacing-2xl);
+}
+
+.hero-stat-item {
+    text-align: center;
+}
+
+.hero-stat-item .stat-number {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+}
+
+.hero-stat-item .stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+section {
+    padding: var(--spacing-3xl) 0;
+}
+
+.products-section {
+    background: white;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.product-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.product-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-icon svg {
+    width: 48px;
+    height: 48px;
+    display: block;
+}
+
+.product-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.product-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.product-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.bugs-section {
+    background: var(--bg-secondary);
+}
+
+.filter-bar {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.filter-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.filter-select,
+.filter-input {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus,
+.filter-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.1);
+}
+
+.filter-search {
+    flex: 1;
+}
+
+.bugs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.bug-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.bug-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.bug-card.severity-critical {
+    border-left-color: var(--severity-critical);
+}
+
+.bug-card.severity-high {
+    border-left-color: var(--severity-high);
+}
+
+.bug-card.severity-medium {
+    border-left-color: var(--severity-medium);
+}
+
+.bug-card.severity-low {
+    border-left-color: var(--severity-low);
+}
+
+.bug-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+}
+
+.bug-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.severity-badge {
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+
+.severity-badge.critical {
+    background: var(--severity-critical);
+}
+
+.severity-badge.high {
+    background: var(--severity-high);
+}
+
+.severity-badge.medium {
+    background: var(--severity-medium);
+}
+
+.severity-badge.low {
+    background: var(--severity-low);
+}
+
+.bug-category {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.bug-description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--spacing-md);
+}
+
+.bug-solution {
+    background: #F0FFF4;
+    border-left: 3px solid var(--severity-low);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.bug-solution strong {
+    color: var(--severity-low);
+    font-size: 13px;
+    display: block;
+    margin-bottom: var(--spacing-xs);
+}
+
+.bug-solution p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.bug-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+}
+
+.bug-tag {
+    padding: 3px 10px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.bug-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.bug-date {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.btn-delete {
+    padding: 6px 12px;
+    background: transparent;
+    color: var(--severity-critical);
+    border: 1px solid var(--severity-critical);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+    background: var(--severity-critical);
+    color: white;
+}
+
+.empty-state {
+    display: none;
+    text-align: center;
+    padding: var(--spacing-3xl);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.empty-state.show {
+    display: block;
+}
+
+.empty-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-icon svg {
+    display: block;
+}
+
+.empty-state h3 {
+    font-size: 24px;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+    font-size: 16px;
+    color: var(--text-secondary);
+}
+
+.footer {
+    background: var(--secondary-color);
+    color: white;
+    padding: var(--spacing-2xl) 0 var(--spacing-lg);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-brand {
+    max-width: 400px;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.footer-logo .logo-aliyun {
+    height: 24px;
+    width: auto;
+}
+
+.footer-brand p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.footer-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.footer-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.footer-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.footer-btn.danger {
+    border-color: var(--severity-critical);
+}
+
+.footer-btn.danger:hover {
+    background: var(--severity-critical);
+    border-color: var(--severity-critical);
+}
+
+.footer-bottom {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-container {
+    position: relative;
+    background: white;
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: var(--shadow-lg);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: var(--border-color);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: var(--spacing-xl);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-family: inherit;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-wrap: wrap;
+    }
+    
+    .nav-menu {
+        display: none;
+    }
+    
+    .hero {
+        padding: var(--spacing-2xl) 0;
+    }
+    
+    .hero-title {
+        font-size: 32px;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-bar {
+        flex-direction: column;
+    }
+    
+    .bugs-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+    
+    .footer-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .footer-btn {
+        justify-content: center;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+    </style>
 </head>
 <body>
-    <!-- 博物馆入口 -->
-    <header class="museum-header">
-        <div class="museum-banner">
-            <div class="banner-decoration">
-                <span class="deco-bug">🐛</span>
-                <span class="deco-bug">🦗</span>
-                <span class="deco-bug">🐞</span>
-                <span class="deco-bug">🦋</span>
-                <span class="deco-bug">🕷️</span>
-            </div>
-            <div class="museum-title">
-                <h1>
-                    <span class="title-icon">🦋</span>
-                    <span class="title-text">BUG博物馆</span>
-                </h1>
-                <p class="museum-subtitle">云服务问题标本收藏馆</p>
-                <div class="museum-info">
-                    <span class="info-item">📍 虚拟展馆</span>
-                    <span class="info-item">🕐 全天开放</span>
-                    <span class="info-item">🎫 免费参观</span>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4608 1024" fill="#ff6a00" height="20" class="logo-aliyun">
+                        <path d="M3266.56 773.12h327.68v-102.4h-327.68v-102.4H3584V35.84H2846.72v532.48h317.44v102.4h-327.68v102.4h327.68v112.64h-353.28v102.4h814.08v-102.4h-353.28v-112.64zM3276.8 138.24h215.04v112.64H3276.8V138.24z m0 215.04h215.04V460.8H3276.8V353.28zM3174.4 460.8h-215.04V353.28H3174.4V460.8z m0-209.92h-215.04V138.24H3174.4v112.64zM537.6 445.44H1075.2v122.88H537.6z"></path>
+                        <path d="M1341.44 5.12h-353.28L1075.2 128l256 81.92c46.08 15.36 76.8 61.44 76.8 107.52v389.12c0 46.08-30.72 92.16-76.8 107.52l-256 81.92-87.04 122.88h353.28c148.48 0 266.24-117.76 266.24-266.24V276.48c0-148.48-117.76-271.36-266.24-271.36zM276.48 814.08c-46.08-15.36-76.8-61.44-76.8-107.52V317.44c0-46.08 30.72-92.16 76.8-107.52l256-81.92L619.52 5.12H266.24C117.76 5.12 0 128 0 276.48v471.04c0 148.48 117.76 266.24 266.24 266.24h353.28l-87.04-122.88-256-76.8zM2493.44 250.88h-261.12v537.6h261.12V250.88z m-107.52 430.08h-56.32V353.28h56.32v327.68zM1848.32 988.16h102.4V138.24h107.52L1996.8 419.84v102.4h61.44v225.28c0 15.36-10.24 25.6-25.6 25.6h-25.6v102.4h51.2c56.32 0 102.4-46.08 102.4-102.4v-358.4H2099.2l61.44-281.6v-102.4h-312.32v957.44z"></path>
+                        <path d="M2206.72 138.24H2560v660.48c0 46.08-35.84 87.04-87.04 87.04h-76.8v102.4h107.52c87.04 0 163.84-71.68 163.84-163.84V138.24h35.84v-102.4h-496.64v102.4zM3763.2 40.96h737.28v102.4H3763.2zM4541.44 527.36v-102.4H3727.36v102.4h204.8l-163.84 358.4v102.4h691.2c30.72 0 51.2-25.6 51.2-51.2 0-10.24 0-15.36-5.12-20.48l-87.04-194.56h-112.64l76.8 163.84h-496.64l163.84-358.4h491.52z"></path>
+                    </svg>
                 </div>
-            </div>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link active">首页</a></li>
+                    <li><a href="#bugs" class="nav-link">BUG列表</a></li>
+                    <li><a href="#products" class="nav-link">产品分类</a></li>
+                    <li><a href="#stats" class="nav-link">数据统计</a></li>
+                    <li><a href="#about" class="nav-link">关于</a></li>
+                </ul>
+                <button class="btn-primary" id="addBugBtn">
+                    <span>➕</span>
+                    <span>提交BUG</span>
+                </button>
+            </nav>
         </div>
-        
-        <!-- 导览栏 -->
-        <nav class="museum-nav">
-            <div class="nav-container">
-                <a href="#exhibition" class="nav-item active">
-                    <span class="nav-icon">🏛️</span>
-                    <span>展览大厅</span>
-                </a>
-                <a href="#collection" class="nav-item">
-                    <span class="nav-icon">📦</span>
-                    <span>我的收藏</span>
-                </a>
-                <a href="#catalog" class="nav-item">
-                    <span class="nav-icon">📚</span>
-                    <span>标本目录</span>
-                </a>
-                <a href="#about" class="nav-item">
-                    <span class="nav-icon">ℹ️</span>
-                    <span>关于</span>
-                </a>
-            </div>
-        </nav>
     </header>
 
-    <!-- 欢迎区 -->
-    <section class="welcome-section">
+    <section class="hero" id="home">
         <div class="container">
-            <div class="welcome-card">
-                <div class="curator-avatar">🧑‍🔬</div>
-                <div class="curator-message">
-                    <h2>馆长致辞</h2>
-                    <p>欢迎来到BUG博物馆！这里收藏着来自云服务世界的各种珍稀BUG标本。每一个BUG都是独特的，它们记录着开发者与云服务相遇的故事。</p>
-                    <p>您可以在这里记录您发现的BUG标本，查看其他收藏家的发现，共同研究这些有趣的"生物"。</p>
-                </div>
-            </div>
-            
-            <!-- 统计展板 -->
-            <div class="stats-board">
-                <div class="stat-display">
-                    <div class="stat-icon">🦋</div>
-                    <div class="stat-content">
-                        <div class="stat-number" id="totalSpecimens">0</div>
-                        <div class="stat-label">标本总数</div>
-                    </div>
-                </div>
-                <div class="stat-display">
-                    <div class="stat-icon">🔴</div>
-                    <div class="stat-content">
-                        <div class="stat-number" id="rareSpecimens">0</div>
-                        <div class="stat-label">稀有标本</div>
-                    </div>
-                </div>
-                <div class="stat-display">
-                    <div class="stat-icon">💡</div>
-                    <div class="stat-content">
-                        <div class="stat-number" id="solvedSpecimens">0</div>
-                        <div class="stat-label">已研究</div>
-                    </div>
-                </div>
-                <div class="stat-display">
-                    <div class="stat-icon">📦</div>
-                    <div class="stat-content">
-                        <div class="stat-number" id="categoriesCount">10</div>
-                        <div class="stat-label">分类数</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 标本分类目录 -->
-    <section class="catalog-section" id="catalog">
-        <div class="container">
-            <h2>
-                <span class="section-icon">📚</span>
-                标本分类目录
-            </h2>
-            <div class="catalog-grid">
-                <div>
-                    <div class="catalog-card" data-category="ECS">
-                        <div class="catalog-icon">🖥️</div>
-                        <h3>云服务器 ECS</h3>
-                        <p>计算实例相关标本</p>
-                        <div class="catalog-count" data-category="ECS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="ACK">
-                        <div class="catalog-icon">🐳</div>
-                        <h3>容器服务 ACK</h3>
-                        <p>Kubernetes相关标本</p>
-                        <div class="catalog-count" data-category="ACK">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="ACR">
-                        <div class="catalog-icon">📦</div>
-                        <h3>容器镜像 ACR</h3>
-                        <p>镜像仓库相关标本</p>
-                        <div class="catalog-count" data-category="ACR">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="FC">
-                        <div class="catalog-icon">⚡</div>
-                        <h3>函数计算 FC</h3>
-                        <p>Serverless相关标本</p>
-                        <div class="catalog-count" data-category="FC">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="OSS">
-                        <div class="catalog-icon">💾</div>
-                        <h3>对象存储 OSS</h3>
-                        <p>存储服务相关标本</p>
-                        <div class="catalog-count" data-category="OSS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="NAS">
-                        <div class="catalog-icon">📁</div>
-                        <h3>文件存储 NAS</h3>
-                        <p>共享文件系统标本</p>
-                        <div class="catalog-count" data-category="NAS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="RDS">
-                        <div class="catalog-icon">🗄️</div>
-                        <h3>云数据库 RDS</h3>
-                        <p>关系型数据库标本</p>
-                        <div class="catalog-count" data-category="RDS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="Redis">
-                        <div class="catalog-icon">🔴</div>
-                        <h3>云数据库 Redis</h3>
-                        <p>缓存数据库标本</p>
-                        <div class="catalog-count" data-category="Redis">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="MongoDB">
-                        <div class="catalog-icon">🍃</div>
-                        <h3>云数据库 MongoDB</h3>
-                        <p>文档数据库标本</p>
-                        <div class="catalog-count" data-category="MongoDB">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="SLB">
-                        <div class="catalog-icon">⚖️</div>
-                        <h3>负载均衡 SLB</h3>
-                        <p>流量分发相关标本</p>
-                        <div class="catalog-count" data-category="SLB">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="CDN">
-                        <div class="catalog-icon">🌐</div>
-                        <h3>CDN</h3>
-                        <p>内容分发相关标本</p>
-                        <div class="catalog-count" data-category="CDN">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="VPC">
-                        <div class="catalog-icon">🔗</div>
-                        <h3>专有网络 VPC</h3>
-                        <p>网络服务相关标本</p>
-                        <div class="catalog-count" data-category="VPC">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="MSE">
-                        <div class="catalog-icon">🔧</div>
-                        <h3>微服务引擎 MSE</h3>
-                        <p>微服务治理标本</p>
-                        <div class="catalog-count" data-category="MSE">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="MQ">
-                        <div class="catalog-icon">📨</div>
-                        <h3>消息队列 MQ</h3>
-                        <p>消息中间件标本</p>
-                        <div class="catalog-count" data-category="MQ">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="EDAS">
-                        <div class="catalog-icon">🏢</div>
-                        <h3>企业级分布式应用 EDAS</h3>
-                        <p>应用托管标本</p>
-                        <div class="catalog-count" data-category="EDAS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="RAM">
-                        <div class="catalog-icon">🔐</div>
-                        <h3>访问控制 RAM</h3>
-                        <p>权限管理相关标本</p>
-                        <div class="catalog-count" data-category="RAM">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="WAF">
-                        <div class="catalog-icon">🛡️</div>
-                        <h3>Web应用防火墙 WAF</h3>
-                        <p>安全防护相关标本</p>
-                        <div class="catalog-count" data-category="WAF">0 个标本</div>
-                    </div>
-                    <!-- 复制一份用于无缝循环 -->
-                    <div class="catalog-card" data-category="ECS">
-                        <div class="catalog-icon">🖥️</div>
-                        <h3>云服务器 ECS</h3>
-                        <p>计算实例相关标本</p>
-                        <div class="catalog-count" data-category="ECS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="ACK">
-                        <div class="catalog-icon">🐳</div>
-                        <h3>容器服务 ACK</h3>
-                        <p>Kubernetes相关标本</p>
-                        <div class="catalog-count" data-category="ACK">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="ACR">
-                        <div class="catalog-icon">📦</div>
-                        <h3>容器镜像 ACR</h3>
-                        <p>镜像仓库相关标本</p>
-                        <div class="catalog-count" data-category="ACR">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="FC">
-                        <div class="catalog-icon">⚡</div>
-                        <h3>函数计算 FC</h3>
-                        <p>Serverless相关标本</p>
-                        <div class="catalog-count" data-category="FC">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="OSS">
-                        <div class="catalog-icon">💾</div>
-                        <h3>对象存储 OSS</h3>
-                        <p>存储服务相关标本</p>
-                        <div class="catalog-count" data-category="OSS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="NAS">
-                        <div class="catalog-icon">📁</div>
-                        <h3>文件存储 NAS</h3>
-                        <p>共享文件系统标本</p>
-                        <div class="catalog-count" data-category="NAS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="RDS">
-                        <div class="catalog-icon">🗄️</div>
-                        <h3>云数据库 RDS</h3>
-                        <p>关系型数据库标本</p>
-                        <div class="catalog-count" data-category="RDS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="Redis">
-                        <div class="catalog-icon">🔴</div>
-                        <h3>云数据库 Redis</h3>
-                        <p>缓存数据库标本</p>
-                        <div class="catalog-count" data-category="Redis">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="MongoDB">
-                        <div class="catalog-icon">🍃</div>
-                        <h3>云数据库 MongoDB</h3>
-                        <p>文档数据库标本</p>
-                        <div class="catalog-count" data-category="MongoDB">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="SLB">
-                        <div class="catalog-icon">⚖️</div>
-                        <h3>负载均衡 SLB</h3>
-                        <p>流量分发相关标本</p>
-                        <div class="catalog-count" data-category="SLB">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="CDN">
-                        <div class="catalog-icon">🌐</div>
-                        <h3>CDN</h3>
-                        <p>内容分发相关标本</p>
-                        <div class="catalog-count" data-category="CDN">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="VPC">
-                        <div class="catalog-icon">🔗</div>
-                        <h3>专有网络 VPC</h3>
-                        <p>网络服务相关标本</p>
-                        <div class="catalog-count" data-category="VPC">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="MSE">
-                        <div class="catalog-icon">🔧</div>
-                        <h3>微服务引擎 MSE</h3>
-                        <p>微服务治理标本</p>
-                        <div class="catalog-count" data-category="MSE">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="MQ">
-                        <div class="catalog-icon">📨</div>
-                        <h3>消息队列 MQ</h3>
-                        <p>消息中间件标本</p>
-                        <div class="catalog-count" data-category="MQ">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="EDAS">
-                        <div class="catalog-icon">🏢</div>
-                        <h3>企业级分布式应用 EDAS</h3>
-                        <p>应用托管标本</p>
-                        <div class="catalog-count" data-category="EDAS">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="RAM">
-                        <div class="catalog-icon">🔐</div>
-                        <h3>访问控制 RAM</h3>
-                        <p>权限管理相关标本</p>
-                        <div class="catalog-count" data-category="RAM">0 个标本</div>
-                    </div>
-                    <div class="catalog-card" data-category="WAF">
-                        <div class="catalog-icon">🛡️</div>
-                        <h3>Web应用防火墙 WAF</h3>
-                        <p>安全防护相关标本</p>
-                        <div class="catalog-count" data-category="WAF">0 个标本</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 展览大厅 -->
-    <section class="exhibition-hall" id="exhibition">
-        <div class="container">
-            <div class="section-header">
-                <h2>
-                    <span class="section-icon">🏛️</span>
-                    展览大厅
-                </h2>
-                <button class="btn-primary" id="addSpecimenBtn">
-                    <span class="btn-icon">➕</span>
-                    <span>添加新标本</span>
-                </button>
-            </div>
-
-            <!-- 筛选柜 -->
-            <div class="filter-cabinet" id="filterCabinet">
-                <div class="cabinet-header">
-                    <h3>🔍 标本筛选器</h3>
-                    <button class="toggle-btn" id="toggleFilter">
-                        <span id="filterToggleIcon">▼</span>
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">阿里云BUG追踪平台</span>
+                </h1>
+                <p class="hero-subtitle">专业的云服务问题记录与管理系统</p>
+                <p class="hero-description">
+                    记录、追踪、解决云服务中的各类问题，提升开发效率，优化用户体验
+                </p>
+                <div class="hero-actions">
+                    <button class="btn-hero-primary" onclick="document.getElementById('addBugBtn').click()">
+                        立即提交BUG
+                    </button>
+                    <button class="btn-hero-secondary" onclick="document.querySelector('#bugs').scrollIntoView({behavior: 'smooth'})">
+                        查看BUG列表
                     </button>
                 </div>
-                <div class="cabinet-content" id="filterContent">
-                    <div class="filter-row">
-                        <div class="filter-item">
-                            <label>🏷️ 分类</label>
-                            <select id="filterCategory">
-                                <option value="">全部分类</option>
-                                <optgroup label="计算服务">
-                                    <option value="ECS">🖥️ 云服务器 ECS</option>
-                                    <option value="ACK">🐳 容器服务 ACK</option>
-                                    <option value="ACR">📦 容器镜像 ACR</option>
-                                    <option value="FC">⚡ 函数计算 FC</option>
-                                </optgroup>
-                                <optgroup label="存储服务">
-                                    <option value="OSS">💾 对象存储 OSS</option>
-                                    <option value="NAS">📁 文件存储 NAS</option>
-                                </optgroup>
-                                <optgroup label="数据库">
-                                    <option value="RDS">🗄️ 云数据库 RDS</option>
-                                    <option value="Redis">🔴 云数据库 Redis</option>
-                                    <option value="MongoDB">🍃 云数据库 MongoDB</option>
-                                </optgroup>
-                                <optgroup label="网络服务">
-                                    <option value="SLB">⚖️ 负载均衡 SLB</option>
-                                    <option value="CDN">🌐 CDN</option>
-                                    <option value="VPC">🔗 专有网络 VPC</option>
-                                </optgroup>
-                                <optgroup label="中间件">
-                                    <option value="MSE">🔧 微服务引擎 MSE</option>
-                                    <option value="MQ">📨 消息队列 MQ</option>
-                                    <option value="EDAS">🏢 企业级分布式应用 EDAS</option>
-                                </optgroup>
-                                <optgroup label="安全与管理">
-                                    <option value="RAM">🔐 访问控制 RAM</option>
-                                    <option value="WAF">🛡️ Web应用防火墙 WAF</option>
-                                </optgroup>
-                                <optgroup label="其他">
-                                    <option value="Console">🎛️ 控制台</option>
-                                    <option value="API">⚙️ API/SDK</option>
-                                    <option value="Other">📦 其他</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label>⭐ 稀有度</label>
-                            <select id="filterRarity">
-                                <option value="">全部稀有度</option>
-                                <option value="critical">🔴 传说级 (严重)</option>
-                                <option value="high">🟠 史诗级 (高)</option>
-                                <option value="medium">🟡 稀有级 (中)</option>
-                                <option value="low">🟢 普通级 (低)</option>
-                            </select>
-                        </div>
-                        <div class="filter-item search-item">
-                            <label>🔎 搜索</label>
-                            <input type="text" id="searchInput" placeholder="搜索标本名称、描述...">
-                        </div>
-                        <button class="btn-reset" id="resetFilters">重置</button>
+                <div class="hero-stats">
+                    <div class="hero-stat-item">
+                        <div class="stat-number" id="heroTotalBugs">0</div>
+                        <div class="stat-label">累计BUG</div>
+                    </div>
+                    <div class="hero-stat-item">
+                        <div class="stat-number" id="heroSolvedBugs">0</div>
+                        <div class="stat-label">已解决</div>
+                    </div>
+                    <div class="hero-stat-item">
+                        <div class="stat-number" id="heroProducts">15+</div>
+                        <div class="stat-label">产品覆盖</div>
                     </div>
                 </div>
             </div>
-
-            <!-- 标本陈列室 -->
-            <div class="specimen-gallery">
-                <div id="specimenGrid" class="specimen-grid">
-                    <!-- 标本卡片将通过JS动态生成 -->
-                </div>
-                <div id="emptyGallery" class="empty-gallery">
-                    <div class="empty-icon">🦋</div>
-                    <h3>展厅空空如也</h3>
-                    <p>还没有收藏任何BUG标本</p>
-                    <p>点击上方"添加新标本"按钮开始您的收藏之旅</p>
-                </div>
-            </div>
         </div>
+        <div class="hero-bg"></div>
     </section>
 
-    <!-- 关于博物馆 -->
-    <section class="about-section" id="about">
+    <section class="products-section" id="products">
         <div class="container">
-            <div class="about-content">
-                <div class="about-text">
-                    <h2>关于BUG博物馆</h2>
-                    <p>BUG博物馆是一个独特的云服务问题收藏平台。我们将每一个BUG视为珍贵的标本，用收藏和研究的态度来对待它们。</p>
-                    <div class="about-features">
-                        <div class="feature-item">
-                            <span class="feature-emoji">🦋</span>
-                            <div>
-                                <h4>标本收藏</h4>
-                                <p>像收集昆虫标本一样记录每一个BUG</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-emoji">🔬</span>
-                            <div>
-                                <h4>深入研究</h4>
-                                <p>详细记录BUG的特征和解决方案</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-emoji">📖</span>
-                            <div>
-                                <h4>知识分享</h4>
-                                <p>与其他收藏家交流经验</p>
-                            </div>
-                        </div>
+            <div class="products-grid">
+                <div class="product-card" data-category="ECS">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 1024 1024" width="48" height="48">
+                            <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z" fill="#FF6A00"/>
+                            <path d="M512 256c-141.4 0-256 114.6-256 256s114.6 256 256 256 256-114.6 256-256-114.6-256-256-256z m0 448c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z" fill="#FF6A00"/>
+                        </svg>
                     </div>
+                    <h3 class="product-name">云服务器 ECS</h3>
+                    <p class="product-desc">弹性计算实例</p>
+                    <div class="product-count" data-category="ECS">0 个问题</div>
                 </div>
-                <div class="about-visual">
-                    <div class="specimen-showcase">
-                        <div class="showcase-item">🐛</div>
-                        <div class="showcase-item">🦗</div>
-                        <div class="showcase-item">🐞</div>
-                        <div class="showcase-item">🦋</div>
-                        <div class="showcase-item">🕷️</div>
-                        <div class="showcase-item">🐜</div>
+                <div class="product-card" data-category="ACK">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 1024 1024" width="48" height="48">
+                            <path d="M512 128L128 320v384l384 192 384-192V320L512 128z m0 128l256 128-256 128-256-128 256-128z m-320 256l256 128v256l-256-128V512z m576 0v256l-256 128V640l256-128z" fill="#FF6A00"/>
+                        </svg>
                     </div>
+                    <h3 class="product-name">容器服务 ACK</h3>
+                    <p class="product-desc">Kubernetes集群</p>
+                    <div class="product-count" data-category="ACK">0 个问题</div>
+                </div>
+                <div class="product-card" data-category="OSS">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 1024 1024" width="48" height="48">
+                            <path d="M832 64H192c-70.4 0-128 57.6-128 128v640c0 70.4 57.6 128 128 128h640c70.4 0 128-57.6 128-128V192c0-70.4-57.6-128-128-128z m64 768c0 35.2-28.8 64-64 64H192c-35.2 0-64-28.8-64-64V192c0-35.2 28.8-64 64-64h640c35.2 0 64 28.8 64 64v640z" fill="#FF6A00"/>
+                            <path d="M256 384h512v64H256z m0 128h512v64H256z m0 128h384v64H256z" fill="#FF6A00"/>
+                        </svg>
+                    </div>
+                    <h3 class="product-name">对象存储 OSS</h3>
+                    <p class="product-desc">海量对象存储</p>
+                    <div class="product-count" data-category="OSS">0 个问题</div>
+                </div>
+                <div class="product-card" data-category="RDS">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 1024 1024" width="48" height="48">
+                            <path d="M512 128c-212.1 0-384 85.9-384 192v384c0 106.1 171.9 192 384 192s384-85.9 384-192V320c0-106.1-171.9-192-384-192z m0 64c176.7 0 320 71.6 320 128s-143.3 128-320 128-320-71.6-320-128 143.3-128 320-128z m0 640c-176.7 0-320-71.6-320-128v-85.3c75.8 54.9 186.5 85.3 320 85.3s244.2-30.4 320-85.3V704c0 56.4-143.3 128-320 128z m0-192c-176.7 0-320-71.6-320-128v-85.3c75.8 54.9 186.5 85.3 320 85.3s244.2-30.4 320-85.3V512c0 56.4-143.3 128-320 128z" fill="#FF6A00"/>
+                        </svg>
+                    </div>
+                    <h3 class="product-name">云数据库 RDS</h3>
+                    <p class="product-desc">关系型数据库</p>
+                    <div class="product-count" data-category="RDS">0 个问题</div>
+                </div>
+                <div class="product-card" data-category="Redis">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 1024 1024" width="48" height="48">
+                            <path d="M512 192c-141.4 0-256 57.3-256 128v384c0 70.7 114.6 128 256 128s256-57.3 256-128V320c0-70.7-114.6-128-256-128z m0 64c106 0 192 42.9 192 96s-86 96-192 96-192-42.9-192-96 86-96 192-96z m0 512c-106 0-192-42.9-192-96v-64c42.7 30.7 106.7 48 192 48s149.3-17.3 192-48v64c0 53.1-86 96-192 96z m0-192c-106 0-192-42.9-192-96v-64c42.7 30.7 106.7 48 192 48s149.3-17.3 192-48v64c0 53.1-86 96-192 96z" fill="#FF6A00"/>
+                        </svg>
+                    </div>
+                    <h3 class="product-name">云数据库 Redis</h3>
+                    <p class="product-desc">缓存数据库</p>
+                    <div class="product-count" data-category="Redis">0 个问题</div>
+                </div>
+                <div class="product-card" data-category="CDN">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 1024 1024" width="48" height="48">
+                            <path d="M512 128c-212.1 0-384 171.9-384 384s171.9 384 384 384 384-171.9 384-384-171.9-384-384-384z m0 704c-176.7 0-320-143.3-320-320s143.3-320 320-320 320 143.3 320 320-143.3 320-320 320z" fill="#FF6A00"/>
+                            <path d="M512 256c-141.4 0-256 114.6-256 256s114.6 256 256 256 256-114.6 256-256-114.6-256-256-256z m0 448c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z" fill="#FF6A00"/>
+                            <circle cx="512" cy="512" r="64" fill="#FF6A00"/>
+                        </svg>
+                    </div>
+                    <h3 class="product-name">CDN</h3>
+                    <p class="product-desc">内容分发网络</p>
+                    <div class="product-count" data-category="CDN">0 个问题</div>
+                </div>
+                <div class="product-card" data-category="SLB">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 1024 1024" width="48" height="48">
+                            <path d="M512 128L128 384v256l384 256 384-256V384L512 128z m0 128l256 171-256 171-256-171 256-171z m-320 384V512l256 171v256L192 640z m576 0l-256 171V683l256-171v128z" fill="#FF6A00"/>
+                        </svg>
+                    </div>
+                    <h3 class="product-name">负载均衡 SLB</h3>
+                    <p class="product-desc">流量分发</p>
+                    <div class="product-count" data-category="SLB">0 个问题</div>
+                </div>
+                <div class="product-card" data-category="VPC">
+                    <div class="product-icon">
+                        <svg viewBox="0 0 1024 1024" width="48" height="48">
+                            <path d="M896 192H128c-35.3 0-64 28.7-64 64v512c0 35.3 28.7 64 64 64h768c35.3 0 64-28.7 64-64V256c0-35.3-28.7-64-64-64z m0 576H128V256h768v512z" fill="#FF6A00"/>
+                            <path d="M256 384h192v64H256z m0 128h384v64H256z m512-128h64v256h-64z" fill="#FF6A00"/>
+                        </svg>
+                    </div>
+                    <h3 class="product-name">专有网络 VPC</h3>
+                    <p class="product-desc">私有网络</p>
+                    <div class="product-count" data-category="VPC">0 个问题</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 页脚 -->
-    <footer class="museum-footer">
+    <section class="bugs-section" id="bugs">
+        <div class="container">
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>产品分类</label>
+                    <select id="filterCategory" class="filter-select">
+                        <option value="">全部产品</option>
+                        <option value="ECS">云服务器 ECS</option>
+                        <option value="ACK">容器服务 ACK</option>
+                        <option value="OSS">对象存储 OSS</option>
+                        <option value="RDS">云数据库 RDS</option>
+                        <option value="Redis">云数据库 Redis</option>
+                        <option value="CDN">CDN</option>
+                        <option value="SLB">负载均衡 SLB</option>
+                        <option value="VPC">专有网络 VPC</option>
+                        <option value="Other">其他</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>严重程度</label>
+                    <select id="filterSeverity" class="filter-select">
+                        <option value="">全部级别</option>
+                        <option value="critical">严重</option>
+                        <option value="high">高</option>
+                        <option value="medium">中</option>
+                        <option value="low">低</option>
+                    </select>
+                </div>
+                <div class="filter-group filter-search">
+                    <label>搜索</label>
+                    <input type="text" id="searchInput" class="filter-input" placeholder="搜索BUG标题或描述...">
+                </div>
+                <button class="btn-reset" id="resetFilters">重置</button>
+            </div>
+
+            <div class="bugs-grid" id="bugsGrid">
+            </div>
+
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 40" width="150" height="auto" style="opacity: 0.3;">
+                        <g fill="#FF6A00">
+                            <path d="M21.4 22.4h21.2v-4.8H21.4z"></path>
+                            <path d="M53.3 0H39.2l3.4 4.8L52.9 8c1.9.6 3.1 2.3 3.1 4.3v15.4c0 2-1.2 3.7-3.1 4.3l-10.3 3.2-3.4 4.8h14.1c6 0 10.7-4.8 10.7-10.7V10.7C64 4.7 59.2 0 53.3 0M10.7 0h14.1l-3.4 4.8L11.1 8A4.5 4.5 0 0 0 8 12.3v15.4c0 2 1.2 3.7 3.1 4.3l10.3 3.2 3.4 4.8H10.7C4.7 40 0 35.2 0 29.3V10.7C0 4.7 4.8 0 10.7 0"></path>
+                        </g>
+                    </svg>
+                </div>
+                <h3>暂无BUG记录</h3>
+                <p>点击右上角"提交BUG"按钮开始记录</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <h3>🦋 BUG博物馆</h3>
-                    <p>收藏 · 研究 · 分享</p>
+                    <div class="footer-logo">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4608 1024" fill="#ffffff" height="20" class="logo-aliyun">
+                            <path d="M3266.56 773.12h327.68v-102.4h-327.68v-102.4H3584V35.84H2846.72v532.48h317.44v102.4h-327.68v102.4h327.68v112.64h-353.28v102.4h814.08v-102.4h-353.28v-112.64zM3276.8 138.24h215.04v112.64H3276.8V138.24z m0 215.04h215.04V460.8H3276.8V353.28zM3174.4 460.8h-215.04V353.28H3174.4V460.8z m0-209.92h-215.04V138.24H3174.4v112.64zM537.6 445.44H1075.2v122.88H537.6z"></path>
+                            <path d="M1341.44 5.12h-353.28L1075.2 128l256 81.92c46.08 15.36 76.8 61.44 76.8 107.52v389.12c0 46.08-30.72 92.16-76.8 107.52l-256 81.92-87.04 122.88h353.28c148.48 0 266.24-117.76 266.24-266.24V276.48c0-148.48-117.76-271.36-266.24-271.36zM276.48 814.08c-46.08-15.36-76.8-61.44-76.8-107.52V317.44c0-46.08 30.72-92.16 76.8-107.52l256-81.92L619.52 5.12H266.24C117.76 5.12 0 128 0 276.48v471.04c0 148.48 117.76 266.24 266.24 266.24h353.28l-87.04-122.88-256-76.8zM2493.44 250.88h-261.12v537.6h261.12V250.88z m-107.52 430.08h-56.32V353.28h56.32v327.68zM1848.32 988.16h102.4V138.24h107.52L1996.8 419.84v102.4h61.44v225.28c0 15.36-10.24 25.6-25.6 25.6h-25.6v102.4h51.2c56.32 0 102.4-46.08 102.4-102.4v-358.4H2099.2l61.44-281.6v-102.4h-312.32v957.44z"></path>
+                            <path d="M2206.72 138.24H2560v660.48c0 46.08-35.84 87.04-87.04 87.04h-76.8v102.4h107.52c87.04 0 163.84-71.68 163.84-163.84V138.24h35.84v-102.4h-496.64v102.4zM3763.2 40.96h737.28v102.4H3763.2zM4541.44 527.36v-102.4H3727.36v102.4h204.8l-163.84 358.4v102.4h691.2c30.72 0 51.2-25.6 51.2-51.2 0-10.24 0-15.36-5.12-20.48l-87.04-194.56h-112.64l76.8 163.84h-496.64l163.84-358.4h491.52z"></path>
+                        </svg>
+                    </div>
+                    <p>专业的云服务问题追踪平台</p>
                 </div>
-                <div class="footer-tools">
-                    <button class="footer-btn" id="exportCollection">
+                <div class="footer-actions">
+                    <button class="footer-btn" id="exportData">
                         <span>📤</span>
-                        <span>导出收藏</span>
+                        <span>导出数据</span>
                     </button>
-                    <button class="footer-btn" id="importCollection">
+                    <button class="footer-btn" id="importData">
                         <span>📥</span>
-                        <span>导入收藏</span>
+                        <span>导入数据</span>
                     </button>
-                    <button class="footer-btn danger" id="clearCollection">
+                    <button class="footer-btn danger" id="clearData">
                         <span>🗑️</span>
-                        <span>清空收藏</span>
+                        <span>清空数据</span>
                     </button>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>💾 所有标本数据保存在您的浏览器本地 | 🔒 隐私安全</p>
-                <p>© 2024 BUG博物馆 | 开源项目 MIT License</p>
+                <p>© 2024 阿里云BUG追踪平台 | 数据本地存储，隐私安全</p>
             </div>
         </div>
     </footer>
 
-    <!-- 添加标本模态框 -->
-    <div class="modal" id="specimenModal">
-        <div class="modal-overlay" onclick="closeSpecimenModal()"></div>
+    <div class="modal" id="bugModal">
+        <div class="modal-overlay"></div>
         <div class="modal-container">
             <div class="modal-header">
-                <h3>
-                    <span class="modal-icon">🦋</span>
-                    添加新标本
-                </h3>
-                <button class="modal-close" onclick="closeSpecimenModal()">✕</button>
+                <h3>提交BUG</h3>
+                <button class="modal-close" id="closeModal">✕</button>
             </div>
-            <form id="specimenForm" class="modal-body">
-                <div class="form-section">
-                    <h4>📋 基本信息</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="category">分类 *</label>
-                            <select id="category" required>
-                                <option value="">选择分类</option>
-                                <optgroup label="计算服务">
-                                    <option value="ECS">🖥️ 云服务器 ECS</option>
-                                    <option value="ACK">🐳 容器服务 ACK</option>
-                                    <option value="ACR">📦 容器镜像 ACR</option>
-                                    <option value="FC">⚡ 函数计算 FC</option>
-                                </optgroup>
-                                <optgroup label="存储服务">
-                                    <option value="OSS">💾 对象存储 OSS</option>
-                                    <option value="NAS">📁 文件存储 NAS</option>
-                                </optgroup>
-                                <optgroup label="数据库">
-                                    <option value="RDS">🗄️ 云数据库 RDS</option>
-                                    <option value="Redis">🔴 云数据库 Redis</option>
-                                    <option value="MongoDB">🍃 云数据库 MongoDB</option>
-                                </optgroup>
-                                <optgroup label="网络服务">
-                                    <option value="SLB">⚖️ 负载均衡 SLB</option>
-                                    <option value="CDN">🌐 CDN</option>
-                                    <option value="VPC">🔗 专有网络 VPC</option>
-                                </optgroup>
-                                <optgroup label="中间件">
-                                    <option value="MSE">🔧 微服务引擎 MSE</option>
-                                    <option value="MQ">📨 消息队列 MQ</option>
-                                    <option value="EDAS">🏢 企业级分布式应用 EDAS</option>
-                                </optgroup>
-                                <optgroup label="安全与管理">
-                                    <option value="RAM">🔐 访问控制 RAM</option>
-                                    <option value="WAF">🛡️ Web应用防火墙 WAF</option>
-                                </optgroup>
-                                <optgroup label="其他">
-                                    <option value="Console">🎛️ 控制台</option>
-                                    <option value="API">⚙️ API/SDK</option>
-                                    <option value="Other">📦 其他</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="rarity">稀有度 *</label>
-                            <select id="rarity" required>
-                                <option value="">选择稀有度</option>
-                                <option value="critical">🔴 传说级</option>
-                                <option value="high">🟠 史诗级</option>
-                                <option value="medium">🟡 稀有级</option>
-                                <option value="low">🟢 普通级</option>
-                            </select>
-                        </div>
+            <form class="modal-body" id="bugForm">
+                <div class="form-group">
+                    <label for="bugTitle">BUG标题 *</label>
+                    <input type="text" id="bugTitle" class="form-input" placeholder="简要描述问题" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bugCategory">产品分类 *</label>
+                        <select id="bugCategory" class="form-select" required>
+                            <option value="">选择产品</option>
+                            <option value="ECS">云服务器 ECS</option>
+                            <option value="ACK">容器服务 ACK</option>
+                            <option value="OSS">对象存储 OSS</option>
+                            <option value="RDS">云数据库 RDS</option>
+                            <option value="Redis">云数据库 Redis</option>
+                            <option value="CDN">CDN</option>
+                            <option value="SLB">负载均衡 SLB</option>
+                            <option value="VPC">专有网络 VPC</option>
+                            <option value="Other">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bugSeverity">严重程度 *</label>
+                        <select id="bugSeverity" class="form-select" required>
+                            <option value="">选择级别</option>
+                            <option value="critical">严重</option>
+                            <option value="high">高</option>
+                            <option value="medium">中</option>
+                            <option value="low">低</option>
+                        </select>
                     </div>
                 </div>
-
-                <div class="form-section">
-                    <h4>🏷️ 标本描述</h4>
-                    <div class="form-group">
-                        <label for="name">标本名称 *</label>
-                        <input type="text" id="name" placeholder="给这个BUG起个名字" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">详细描述 *</label>
-                        <textarea id="description" rows="5" placeholder="描述BUG的特征、出现条件、影响范围等..." required></textarea>
-                    </div>
+                <div class="form-group">
+                    <label for="bugDescription">问题描述 *</label>
+                    <textarea id="bugDescription" class="form-textarea" rows="4" placeholder="详细描述问题现象、复现步骤等..." required></textarea>
                 </div>
-
-                <div class="form-section">
-                    <h4>🔬 研究笔记</h4>
-                    <div class="form-group">
-                        <label for="solution">解决方案</label>
-                        <textarea id="solution" rows="3" placeholder="记录解决方法或临时规避措施..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="tags">标签</label>
-                        <input type="text" id="tags" placeholder="用逗号分隔，如: 网络,超时,配置错误">
-                    </div>
+                <div class="form-group">
+                    <label for="bugSolution">解决方案</label>
+                    <textarea id="bugSolution" class="form-textarea" rows="3" placeholder="如已解决，请填写解决方案..."></textarea>
                 </div>
-
+                <div class="form-group">
+                    <label for="bugTags">标签</label>
+                    <input type="text" id="bugTags" class="form-input" placeholder="用逗号分隔，如: 网络,超时,配置">
+                </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeSpecimenModal()">取消</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn">取消</button>
                     <button type="submit" class="btn-primary">
-                        <span>📦</span>
-                        <span>收藏标本</span>
+                        <span>✓</span>
+                        <span>提交</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+class BugTracker {
+    constructor() {
+        this.bugs = [];
+        this.filteredBugs = [];
+        this.init();
+    }
+
+    init() {
+        this.loadData();
+        this.bindEvents();
+        this.renderBugs();
+        this.updateStats();
+        this.updateProductCounts();
+    }
+
+    loadData() {
+        const stored = localStorage.getItem('aliyun_bugs');
+        if (stored) {
+            try {
+                this.bugs = JSON.parse(stored);
+                this.filteredBugs = [...this.bugs];
+            } catch (e) {
+                console.error('加载数据失败:', e);
+                this.bugs = [];
+                this.filteredBugs = [];
+            }
+        }
+    }
+
+    saveData() {
+        try {
+            localStorage.setItem('aliyun_bugs', JSON.stringify(this.bugs));
+        } catch (e) {
+            console.error('保存数据失败:', e);
+            this.showNotification('保存失败，可能是存储空间不足', 'error');
+        }
+    }
+
+    bindEvents() {
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('href');
+                document.querySelector(target).scrollIntoView({ behavior: 'smooth' });
+                
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        document.getElementById('addBugBtn').addEventListener('click', () => this.openModal());
+        document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
+        document.getElementById('cancelBtn').addEventListener('click', () => this.closeModal());
+        document.querySelector('.modal-overlay').addEventListener('click', () => this.closeModal());
+        
+        document.getElementById('bugForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.addBug();
+        });
+
+        document.getElementById('filterCategory').addEventListener('change', () => this.applyFilters());
+        document.getElementById('filterSeverity').addEventListener('change', () => this.applyFilters());
+        document.getElementById('searchInput').addEventListener('input', () => this.applyFilters());
+        document.getElementById('resetFilters').addEventListener('click', () => this.resetFilters());
+
+        document.getElementById('exportData').addEventListener('click', () => this.exportData());
+        document.getElementById('importData').addEventListener('click', () => this.importData());
+        document.getElementById('clearData').addEventListener('click', () => this.clearData());
+
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const category = card.dataset.category;
+                document.getElementById('filterCategory').value = category;
+                this.applyFilters();
+                document.querySelector('#bugs').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    }
+
+    openModal() {
+        document.getElementById('bugModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeModal() {
+        document.getElementById('bugModal').classList.remove('show');
+        document.getElementById('bugForm').reset();
+        document.body.style.overflow = '';
+    }
+
+    addBug() {
+        const bug = {
+            id: Date.now().toString(),
+            title: document.getElementById('bugTitle').value,
+            category: document.getElementById('bugCategory').value,
+            severity: document.getElementById('bugSeverity').value,
+            description: document.getElementById('bugDescription').value,
+            solution: document.getElementById('bugSolution').value,
+            tags: document.getElementById('bugTags').value
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag),
+            createdAt: new Date().toISOString()
+        };
+
+        this.bugs.unshift(bug);
+        this.saveData();
+        this.applyFilters();
+        this.updateStats();
+        this.updateProductCounts();
+        this.closeModal();
+        
+        this.showNotification('✅ BUG提交成功！', 'success');
+        
+        setTimeout(() => {
+            document.querySelector('#bugs').scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+    }
+
+    deleteBug(id) {
+        if (confirm('确定要删除这个BUG记录吗？')) {
+            this.bugs = this.bugs.filter(b => b.id !== id);
+            this.saveData();
+            this.applyFilters();
+            this.updateStats();
+            this.updateProductCounts();
+            this.showNotification('BUG已删除', 'info');
+        }
+    }
+
+    applyFilters() {
+        const categoryFilter = document.getElementById('filterCategory').value;
+        const severityFilter = document.getElementById('filterSeverity').value;
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+        this.filteredBugs = this.bugs.filter(bug => {
+            const matchCategory = !categoryFilter || bug.category === categoryFilter;
+            const matchSeverity = !severityFilter || bug.severity === severityFilter;
+            const matchSearch = !searchText || 
+                bug.title.toLowerCase().includes(searchText) ||
+                bug.description.toLowerCase().includes(searchText) ||
+                bug.tags.some(tag => tag.toLowerCase().includes(searchText));
+
+            return matchCategory && matchSeverity && matchSearch;
+        });
+
+        this.renderBugs();
+    }
+
+    resetFilters() {
+        document.getElementById('filterCategory').value = '';
+        document.getElementById('filterSeverity').value = '';
+        document.getElementById('searchInput').value = '';
+        this.applyFilters();
+    }
+
+    renderBugs() {
+        const grid = document.getElementById('bugsGrid');
+        const emptyState = document.getElementById('emptyState');
+
+        if (this.filteredBugs.length === 0) {
+            grid.innerHTML = '';
+            emptyState.classList.add('show');
+            
+            if (this.bugs.length > 0) {
+                emptyState.innerHTML = `
+                    <div class="empty-icon">🔍</div>
+                    <h3>未找到匹配的BUG</h3>
+                    <p>请调整筛选条件</p>
+                `;
+            } else {
+                emptyState.innerHTML = `
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 40" width="150" height="auto" style="opacity: 0.3;">
+                            <g fill="#FF6A00">
+                                <path d="M21.4 22.4h21.2v-4.8H21.4z"></path>
+                                <path d="M53.3 0H39.2l3.4 4.8L52.9 8c1.9.6 3.1 2.3 3.1 4.3v15.4c0 2-1.2 3.7-3.1 4.3l-10.3 3.2-3.4 4.8h14.1c6 0 10.7-4.8 10.7-10.7V10.7C64 4.7 59.2 0 53.3 0M10.7 0h14.1l-3.4 4.8L11.1 8A4.5 4.5 0 0 0 8 12.3v15.4c0 2 1.2 3.7 3.1 4.3l10.3 3.2 3.4 4.8H10.7C4.7 40 0 35.2 0 29.3V10.7C0 4.7 4.8 0 10.7 0"></path>
+                            </g>
+                        </svg>
+                    </div>
+                    <h3>暂无BUG记录</h3>
+                    <p>点击右上角"提交BUG"按钮开始记录</p>
+                `;
+            }
+            return;
+        }
+
+        emptyState.classList.remove('show');
+        grid.innerHTML = this.filteredBugs.map(bug => this.createBugCard(bug)).join('');
+
+        grid.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.dataset.id;
+                this.deleteBug(id);
+            });
+        });
+    }
+
+    createBugCard(bug) {
+        const severityLabels = {
+            critical: '严重',
+            high: '高',
+            medium: '中',
+            low: '低'
+        };
+
+        const categoryIcons = {
+            ECS: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z" fill="#FF6A00"/><path d="M512 256c-141.4 0-256 114.6-256 256s114.6 256 256 256 256-114.6 256-256-114.6-256-256-256z m0 448c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z" fill="#FF6A00"/></svg>',
+            ACK: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M512 128L128 320v384l384 192 384-192V320L512 128z m0 128l256 128-256 128-256-128 256-128z m-320 256l256 128v256l-256-128V512z m576 0v256l-256 128V640l256-128z" fill="#FF6A00"/></svg>',
+            OSS: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M832 64H192c-70.4 0-128 57.6-128 128v640c0 70.4 57.6 128 128 128h640c70.4 0 128-57.6 128-128V192c0-70.4-57.6-128-128-128z m64 768c0 35.2-28.8 64-64 64H192c-35.2 0-64-28.8-64-64V192c0-35.2 28.8-64 64-64h640c35.2 0 64 28.8 64 64v640z" fill="#FF6A00"/><path d="M256 384h512v64H256z m0 128h512v64H256z m0 128h384v64H256z" fill="#FF6A00"/></svg>',
+            RDS: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M512 128c-212.1 0-384 85.9-384 192v384c0 106.1 171.9 192 384 192s384-85.9 384-192V320c0-106.1-171.9-192-384-192z m0 64c176.7 0 320 71.6 320 128s-143.3 128-320 128-320-71.6-320-128 143.3-128 320-128z m0 640c-176.7 0-320-71.6-320-128v-85.3c75.8 54.9 186.5 85.3 320 85.3s244.2-30.4 320-85.3V704c0 56.4-143.3 128-320 128z m0-192c-176.7 0-320-71.6-320-128v-85.3c75.8 54.9 186.5 85.3 320 85.3s244.2-30.4 320-85.3V512c0 56.4-143.3 128-320 128z" fill="#FF6A00"/></svg>',
+            Redis: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M512 192c-141.4 0-256 57.3-256 128v384c0 70.7 114.6 128 256 128s256-57.3 256-128V320c0-70.7-114.6-128-256-128z m0 64c106 0 192 42.9 192 96s-86 96-192 96-192-42.9-192-96 86-96 192-96z m0 512c-106 0-192-42.9-192-96v-64c42.7 30.7 106.7 48 192 48s149.3-17.3 192-48v64c0 53.1-86 96-192 96z m0-192c-106 0-192-42.9-192-96v-64c42.7 30.7 106.7 48 192 48s149.3-17.3 192-48v64c0 53.1-86 96-192 96z" fill="#FF6A00"/></svg>',
+            CDN: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M512 128c-212.1 0-384 171.9-384 384s171.9 384 384 384 384-171.9 384-384-171.9-384-384-384z m0 704c-176.7 0-320-143.3-320-320s143.3-320 320-320 320 143.3 320 320-143.3 320-320 320z" fill="#FF6A00"/><path d="M512 256c-141.4 0-256 114.6-256 256s114.6 256 256 256 256-114.6 256-256-114.6-256-256-256z m0 448c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z" fill="#FF6A00"/><circle cx="512" cy="512" r="64" fill="#FF6A00"/></svg>',
+            SLB: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M512 128L128 384v256l384 256 384-256V384L512 128z m0 128l256 171-256 171-256-171 256-171z m-320 384V512l256 171v256L192 640z m576 0l-256 171V683l256-171v128z" fill="#FF6A00"/></svg>',
+            VPC: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M896 192H128c-35.3 0-64 28.7-64 64v512c0 35.3 28.7 64 64 64h768c35.3 0 64-28.7 64-64V256c0-35.3-28.7-64-64-64z m0 576H128V256h768v512z" fill="#FF6A00"/><path d="M256 384h192v64H256z m0 128h384v64H256z m512-128h64v256h-64z" fill="#FF6A00"/></svg>',
+            Other: '<svg viewBox="0 0 1024 1024" width="24" height="24"><path d="M832 64H192c-70.4 0-128 57.6-128 128v640c0 70.4 57.6 128 128 128h640c70.4 0 128-57.6 128-128V192c0-70.4-57.6-128-128-128z m64 768c0 35.2-28.8 64-64 64H192c-35.2 0-64-28.8-64-64V192c0-35.2 28.8-64 64-64h640c35.2 0 64 28.8 64 64v640z" fill="#FF6A00"/></svg>'
+        };
+
+        const date = new Date(bug.createdAt);
+        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+        return `
+            <div class="bug-card severity-${bug.severity} fade-in">
+                <div class="bug-header">
+                    <div>
+                        <h3 class="bug-title">${this.escapeHtml(bug.title)}</h3>
+                        <span class="bug-category">${categoryIcons[bug.category] || categoryIcons.Other} ${this.escapeHtml(bug.category)}</span>
+                    </div>
+                    <span class="severity-badge ${bug.severity}">
+                        ${severityLabels[bug.severity]}
+                    </span>
+                </div>
+                
+                <p class="bug-description">${this.escapeHtml(bug.description)}</p>
+                
+                ${bug.solution ? `
+                    <div class="bug-solution">
+                        <strong>💡 解决方案</strong>
+                        <p>${this.escapeHtml(bug.solution)}</p>
+                    </div>
+                ` : ''}
+                
+                ${bug.tags.length > 0 ? `
+                    <div class="bug-tags">
+                        ${bug.tags.map(tag => `<span class="bug-tag">#${this.escapeHtml(tag)}</span>`).join('')}
+                    </div>
+                ` : ''}
+                
+                <div class="bug-footer">
+                    <span class="bug-date">📅 ${formattedDate}</span>
+                    <button class="btn-delete" data-id="${bug.id}">删除</button>
+                </div>
+            </div>
+        `;
+    }
+
+    updateStats() {
+        const stats = {
+            total: this.bugs.length,
+            solved: this.bugs.filter(b => b.solution).length
+        };
+
+        document.getElementById('heroTotalBugs').textContent = stats.total;
+        document.getElementById('heroSolvedBugs').textContent = stats.solved;
+    }
+
+    updateProductCounts() {
+        const categories = ['ECS', 'ACK', 'OSS', 'RDS', 'Redis', 'CDN', 'SLB', 'VPC'];
+        
+        categories.forEach(category => {
+            const count = this.bugs.filter(b => b.category === category).length;
+            const elements = document.querySelectorAll(`.product-count[data-category="${category}"]`);
+            elements.forEach(element => {
+                element.textContent = `${count} 个问题`;
+            });
+        });
+    }
+
+    exportData() {
+        if (this.bugs.length === 0) {
+            this.showNotification('暂无数据可导出', 'info');
+            return;
+        }
+
+        const dataStr = JSON.stringify(this.bugs, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `aliyun-bugs-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        this.showNotification('📤 数据导出成功', 'success');
+    }
+
+    importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const importedBugs = JSON.parse(event.target.result);
+                    
+                    if (!Array.isArray(importedBugs)) {
+                        throw new Error('数据格式不正确');
+                    }
+
+                    const confirm = window.confirm(
+                        `将导入 ${importedBugs.length} 条BUG记录。\n\n` +
+                        '选择"确定"将替换现有数据\n' +
+                        '选择"取消"将合并到现有数据'
+                    );
+
+                    if (confirm) {
+                        this.bugs = importedBugs;
+                    } else {
+                        const existingIds = new Set(this.bugs.map(b => b.id));
+                        const newBugs = importedBugs.filter(b => !existingIds.has(b.id));
+                        this.bugs = [...this.bugs, ...newBugs];
+                    }
+
+                    this.saveData();
+                    this.applyFilters();
+                    this.updateStats();
+                    this.updateProductCounts();
+                    this.showNotification('📥 数据导入成功', 'success');
+                } catch (error) {
+                    this.showNotification('导入失败: ' + error.message, 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+        };
+        
+        input.click();
+    }
+
+    clearData() {
+        if (this.bugs.length === 0) {
+            this.showNotification('暂无数据', 'info');
+            return;
+        }
+
+        if (confirm(`确定要清空所有 ${this.bugs.length} 条BUG记录吗？\n\n此操作不可恢复！建议先导出备份。`)) {
+            this.bugs = [];
+            this.filteredBugs = [];
+            this.saveData();
+            this.renderBugs();
+            this.updateStats();
+            this.updateProductCounts();
+            this.showNotification('🗑️ 数据已清空', 'info');
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        const colors = {
+            success: '#34C759',
+            error: '#FF3B30',
+            info: '#FF6A00'
+        };
+
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 16px 24px;
+            background: ${colors[type]};
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            z-index: 10000;
+            font-weight: 600;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.bugTracker = new BugTracker();
+    
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.5s ease';
+        document.body.style.opacity = '1';
+    }, 100);
+    
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    window.addEventListener('scroll', () => {
+        let current = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (window.pageYOffset >= sectionTop - 100) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    });
+});
+    </script>
 </body>
 </html>
